@@ -1,0 +1,10 @@
+name: "UserServer"
+user_srv:
+  name: "user_srv"
+  host: "0.0.0.0"
+  port: 50051
+jwt:
+  key: "Z5E8YhcNkyderkXubW0zRVxy4ozuiY4d"
+consul:
+  host: '127.0.0.1'
+  port: 8500
