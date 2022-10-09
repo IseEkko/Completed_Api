@@ -5,11 +5,32 @@ import (
 	"Completed_Api/user-web/proto"
 	"fmt"
 	"github.com/hashicorp/consul/api"
+	_ "github.com/mbobakov/grpc-consul-resolver"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )
 
+/**
+加入了负载均衡手段这里我们需要注意的事情：
+负载均衡使用的是：
+_ "github.com/mbobakov/grpc-consul-resolver"
+具体的使用方法前往官方文档进行学习
+*/
 func InitSrvConn() {
+	consulInfo := global.ServConfig.CosulConfiginfo
+	userConn, err := grpc.Dial(
+		fmt.Sprintf("consul://%s:%d/%s?wait=14s", consulInfo.Host, consulInfo.Port, global.ServConfig.UserSrv.Name),
+		grpc.WithInsecure(),
+		grpc.WithDefaultServiceConfig(`{"loadBalancingPolicy": "round_robin"}`),
+	)
+	if err != nil {
+		zap.S().Fatal("[InitSrvConn] 连接 【用户服务失败】")
+	}
+
+	userSrvClient := proto.NewUserClient(userConn)
+	global.UserSrvClient = userSrvClient
+}
+func InitSrvConn2() {
 	/**
 	从注册中心获取相关信息
 	*/
